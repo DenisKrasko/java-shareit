@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserDto {
+public class NewUserRequest {
 	private String name;
 	@NotBlank
 	@Email

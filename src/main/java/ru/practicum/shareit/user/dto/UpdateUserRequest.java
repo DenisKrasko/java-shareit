@@ -7,9 +7,18 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserDto {
+public class UpdateUserRequest {
+	private Long id;
 	private String name;
 	@NotBlank
 	@Email
 	private String email;
+
+	public boolean hasEmail() {
+		return ! (email == null || email.isBlank());
+	}
+
+	public boolean hasName() {
+		return ! (name == null || name.isBlank());
+	}
 }
