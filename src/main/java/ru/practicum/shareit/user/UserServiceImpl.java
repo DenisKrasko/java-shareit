@@ -26,6 +26,13 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
+	public UserDto getUser(Long id) {
+		return UserMapper.toUserDto(userRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("User not found with id: " + id)));
+	}
+
+
+	@Override
 	public UserDto addUser(NewUserRequest newUserRequest) {
 		validateEmailUniqueness(newUserRequest.getEmail());
 		User user = UserMapper.toUser(newUserRequest);
@@ -34,16 +41,13 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public UserDto update(UpdateUserRequest updateUserRequest) {
-		if (updateUserRequest.getId() == null) {
-			log.error("Error: uninitialised id");
-			throw new ValidationException("Id должен быть указан");
-		}
+	public UserDto update(Long id, UpdateUserRequest updateUserRequest) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 		validateEmailUniqueness(updateUserRequest.getEmail());
-		User updatedUser = userRepository.findById(updateUserRequest.getId())
-				.map(user -> UserMapper.updateUserFields(user, updateUserRequest))
-				.orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-		return UserMapper.toUserDto(userRepository.update(updatedUser));
+		UserMapper.updateUserFields(user, updateUserRequest);
+		User updatedUser = userRepository.update(user);
+		return UserMapper.toUserDto(updatedUser);
 	}
 
 	@Override

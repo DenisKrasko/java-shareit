@@ -10,7 +10,6 @@ import lombok.Data;
 public class UpdateUserRequest {
 	private Long id;
 	private String name;
-	@NotBlank
 	@Email
 	private String email;
 

@@ -23,9 +23,15 @@ public class UserController {
 		return userService.addUser(newUserRequest);
 	}
 
-	@PutMapping
-	public UserDto update(@Valid @RequestBody UpdateUserRequest updateUserRequest) {
-		return userService.update(updateUserRequest);
+	@PatchMapping("/{id}")
+	public UserDto update(@PathVariable Long id,
+						  @Valid @RequestBody UpdateUserRequest updateUserRequest) {
+		return userService.update(id, updateUserRequest);
+	}
+
+	@GetMapping("/{id}")
+	public UserDto getUser(@PathVariable Long id) {
+		return userService.getUser(id);
 	}
 
 	@GetMapping
