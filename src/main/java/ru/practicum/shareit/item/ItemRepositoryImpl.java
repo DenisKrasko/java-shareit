@@ -20,7 +20,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
 	@Override
 	public Item update(Item item) {
-		items.removeIf(item1 -> item1.getId() == item.getId());
+		items.removeIf(item1 -> item1.getId().equals(item.getId()));
 		items.add(item);
 		return item;
 	}
@@ -28,7 +28,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 	@Override
 	public Optional<Item> findById(Long itemId) {
 		return items.stream()
-				.filter(item -> item.getId() == itemId)
+				.filter(item -> item.getId().equals(itemId))
 				.findFirst();
 	}
 

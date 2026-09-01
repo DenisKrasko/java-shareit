@@ -29,7 +29,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public void deleteUser(Long id) {
-		users.removeIf(user -> user.getId() == id);
+		users.removeIf(user -> user.getId().equals(id));
 	}
 
 	private long getId() {
@@ -42,7 +42,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	public Optional<User> findById(Long userId) {
 		return users.stream()
-				.filter(user -> user.getId() == userId)
+				.filter(user -> user.getId().equals(userId))
 				.findFirst();
 	}
 
@@ -53,6 +53,6 @@ public class UserRepositoryImpl implements UserRepository {
 
 	public boolean existsById(Long userId) {
 		return users.stream()
-				.anyMatch(user -> user.getId() == userId);
+				.anyMatch(user -> user.getId().equals(userId));
 	}
 }
