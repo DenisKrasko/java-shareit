@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository{
+public class UserRepositoryImpl implements UserRepository {
 	private final List<User> users = new ArrayList<>();
 
 	@Override
@@ -49,5 +49,10 @@ public class UserRepositoryImpl implements UserRepository{
 	public boolean existsByEmail(String email) {
 		return users.stream()
 				.anyMatch(user -> user.getEmail().equalsIgnoreCase(email));
+	}
+
+	public boolean existsById(Long userId) {
+		return users.stream()
+				.anyMatch(user -> user.getId() == userId);
 	}
 }
