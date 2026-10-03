@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
 		if (itemDto.getAvailable() != null) {
 			itemToUpdate.setAvailable(itemDto.getAvailable());
 		}
-		Item updatedItem = itemRepository.update(itemToUpdate);
+		Item updatedItem = itemRepository.save(itemToUpdate);
 		return ItemMapper.toItemDto(updatedItem);
 	}
 
@@ -66,12 +67,9 @@ public class ItemServiceImpl implements ItemService {
 		if (text == null || text.isBlank()) {
 			return List.of();
 		}
-		String query = text.toLowerCase();
-		return itemRepository.findAll().stream()
-				.filter(Item::isAvailable)
-				.filter(item -> (item.getName() != null && item.getName().toLowerCase().contains(query)) ||
-						(item.getDescription() != null && item.getDescription().toLowerCase().contains(query)))
+		List<Item> items = itemRepository.search(text);
+		return items.stream()
 				.map(ItemMapper::toItemDto)
-				.toList();
+				.collect(Collectors.toList());
 	}
 }

@@ -46,13 +46,13 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 		validateEmailUniqueness(updateUserRequest.getEmail());
 		UserMapper.updateUserFields(user, updateUserRequest);
-		User updatedUser = userRepository.update(user);
+		User updatedUser = userRepository.save(user);
 		return UserMapper.toUserDto(updatedUser);
 	}
 
 	@Override
 	public void deleteUser(Long id) {
-		userRepository.deleteUser(id);
+		userRepository.deleteById(id);
 	}
 
 	private void validateEmailUniqueness(String email) {
