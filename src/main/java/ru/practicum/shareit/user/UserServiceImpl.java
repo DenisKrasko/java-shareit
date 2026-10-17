@@ -3,11 +3,12 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
 	private void validateEmailUniqueness(String email) {
 		if (userRepository.existsByEmail(email)) {
 			log.error("Пользователь с таким email уже существует");
-			throw new ValidationException("Пользователь с таким email уже существует");
+			throw new DuplicateEmailException("Пользователь с таким email уже существует");
 		}
 	}
 }

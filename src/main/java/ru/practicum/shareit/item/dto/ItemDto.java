@@ -9,12 +9,17 @@ import ru.practicum.shareit.request.ItemRequest;
 @Data
 @AllArgsConstructor
 public class ItemDto {
+
 	private Long id;
-	@NotBlank
+
+	@NotBlank(message = "Название вещи не может быть пустым")
 	private String name;
-	@NotBlank
+
+	@NotBlank(message = "Описание вещи не может быть пустым")
 	private String description;
-	@NotNull
+
+	@NotNull(message = "Статус доступности (available) должен быть указан")
 	private Boolean available;
+
 	private ItemRequest request;
 }
