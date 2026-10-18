@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 
 import java.time.LocalDateTime;
@@ -66,4 +67,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 	boolean existsByBooker_IdAndItemIdAndStatusAndEndIsBefore(
 			Long bookerId, Long itemId, BookingStatus status, LocalDateTime end);
+
+	@Query("""
+        SELECT b
+        FROM Booking AS b
+        LEFT JOIN FETCH b.item
+        LEFT JOIN FETCH b.booker
+        WHERE b.item.owner.id = ?1
+                AND b.status = 'APPROVED'
+        ORDER BY b.start
+        """)
+	List<Booking> findApprovedWithItemAndBookerByOwnerId(Long ownerId);
 }

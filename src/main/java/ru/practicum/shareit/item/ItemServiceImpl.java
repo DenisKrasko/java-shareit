@@ -66,20 +66,29 @@ public class ItemServiceImpl implements ItemService {
 				.orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
 		ItemWithBookingDto dto = ItemMapper.toItemWithBookingDto(item);
 		if (item.getOwner().getId().equals(userId)) {
-			enrichWithBookings(dto);
+			List<Booking> bookings = bookingRepository.findByItemIdAndStatus(
+					itemId, BookingStatus.APPROVED, Sort.by(Sort.Direction.ASC, "start"));
+			enrichWithBookings(dto, bookings);
 		}
-		enrichWithComments(dto);
+		enrichWithComments(dto, commentRepository.findAllByItemId(itemId));
 		return dto;
 	}
 
 	@Override
 	public List<ItemWithBookingDto> getItemsByOwner(Long userId) {
 		List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
+		if (items.isEmpty()) return List.of();
+
+		List<Booking> bookings = bookingRepository
+				.findApprovedWithItemAndBookerByOwnerId(userId);
+
+		List<Comment> comments = commentRepository.findWithAuthorByOwnerId(userId);
+
 		return items.stream()
 				.map(item -> {
 					ItemWithBookingDto dto = ItemMapper.toItemWithBookingDto(item);
-					enrichWithBookings(dto);
-					enrichWithComments(dto);
+					enrichWithBookings(dto, filterBookingsByItemId(bookings, item.getId()));
+					enrichWithComments(dto, filterCommentsByItemId(comments, item.getId()));
 					return dto;
 				})
 				.collect(Collectors.toList());
@@ -96,22 +105,17 @@ public class ItemServiceImpl implements ItemService {
 				.collect(Collectors.toList());
 	}
 
-	private void enrichWithBookings(ItemWithBookingDto dto) {
+	private void enrichWithBookings(ItemWithBookingDto dto, List<Booking> bookings) {
 		LocalDateTime now = LocalDateTime.now();
-		Sort sortAsc = Sort.by(Sort.Direction.ASC, "start");
-		List<Booking> bookings = bookingRepository.findByItemIdAndStatus(
-				dto.getId(),
-				BookingStatus.APPROVED,
-				sortAsc);
 
 		Booking lastBooking = bookings.stream()
-				.filter(b -> b.getStart().isBefore(now) || b.getStart().isEqual(now))
-				.reduce((first, second) -> second)
+				.filter(b -> !b.getStart().isAfter(now))
+				.max((a, b) -> a.getStart().compareTo(b.getStart()))
 				.orElse(null);
 
 		Booking nextBooking = bookings.stream()
 				.filter(b -> b.getStart().isAfter(now))
-				.findFirst()
+				.min((a, b) -> a.getStart().compareTo(b.getStart()))
 				.orElse(null);
 
 
@@ -144,9 +148,21 @@ public class ItemServiceImpl implements ItemService {
 	/**
 	 * Заполняет DTO вещи списком всех её комментариев.
 	 */
-	private void enrichWithComments(ItemWithBookingDto dto) {
-		dto.setComments(commentRepository.findAllByItemId(dto.getId()).stream()
+	private void enrichWithComments(ItemWithBookingDto dto, List<Comment> comments) {
+		dto.setComments(comments.stream()
 				.map(CommentMapper::toCommentDto)
 				.collect(Collectors.toList()));
+	}
+
+	private List<Booking> filterBookingsByItemId(List<Booking> bookings, Long itemId) {
+		return bookings.stream()
+				.filter(b -> b.getItem().getId().equals(itemId))
+				.collect(Collectors.toList());
+	}
+
+	private List<Comment> filterCommentsByItemId(List<Comment> comments, Long itemId) {
+		return comments.stream()
+				.filter(c -> c.getItem().getId().equals(itemId))
+				.collect(Collectors.toList());
 	}
 }

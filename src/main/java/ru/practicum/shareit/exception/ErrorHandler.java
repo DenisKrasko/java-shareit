@@ -24,4 +24,10 @@ public class ErrorHandler {
 	public ErrorResponse handleDuplicateEmail(final DuplicateEmailException e) {
 		return new ErrorResponse("Ошибка. Такой email уже используется", e.getMessage());
 	}
+
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	@ExceptionHandler(AccessException.class)
+	public ErrorResponse handleAccess(final AccessException e) {
+		return new ErrorResponse("Ошибка доступа", e.getMessage());
+	}
 }
