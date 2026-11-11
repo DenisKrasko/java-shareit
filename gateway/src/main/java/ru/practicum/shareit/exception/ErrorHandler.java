@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
@@ -21,24 +23,28 @@ public class ErrorHandler {
 				.findFirst()
 				.map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.orElse("что то не так с данными");
+		log.warn("ошибка валидации: {}", message);
 		return new ErrorResponse("ошибка валидации", message);
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ErrorResponse handleConstraintViolation(final ConstraintViolationException e) {
+		log.warn("ошибка валидации: {}", e.getMessage());
 		return new ErrorResponse("ошибка валидации", e.getMessage());
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ErrorResponse handleIllegalArgument(final IllegalArgumentException e) {
+		log.warn("не корректный запрос: {}", e.getMessage());
 		return new ErrorResponse(e.getMessage(), "не корректный запрос");
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ErrorResponse handleNotReadable(final HttpMessageNotReadableException e) {
+		log.warn("не получилось прочитать данные запроса: {}", e.getMessage());
 		return new ErrorResponse("ошибка валидации", "не получилось прочитать данные запроса");
 	}
 
@@ -48,6 +54,7 @@ public class ErrorHandler {
 			MethodArgumentTypeMismatchException.class
 	})
 	public ErrorResponse handleRequestParameters(final Exception e) {
+		log.warn("ошибка валидации: {}", e.getMessage());
 		return new ErrorResponse("ошибка валидации", e.getMessage());
 	}
 }

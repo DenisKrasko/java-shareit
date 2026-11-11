@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.NewUserRequest;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
@@ -11,7 +10,6 @@ import ru.practicum.shareit.user.dto.UpdateUserRequest;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/users")
-@Validated
 public class UserController {
 	private final UserClient userClient;
 
